@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>مربی من | برنامه هوشمند تمرین و تغذیه</title>
+  
+  <!-- PWA Manifest & Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#10b981">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="مربی من">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap');
+
+    :root {
+      --primary: #10b981;
+      --primary-dark: #059669;
+      --primary-light: #d1fae5;
+      --secondary: #6366f1;
+      --accent: #f59e0b;
+      --danger: #ef4444;
+      --dark: #0f172a;
+      --dark-card: #1e293b;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-900: #0f172a;
+      --radius: 16px;
+      --shadow: 0 4px 15px rgba(15, 23, 42, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Vazirmatn', system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: var(--gray-900);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding-bottom: 95px; /* Room for bottom navigation bar on mobile */
+    }
+
+    /* Top App Bar */
+    .app-header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      padding: 16px 18px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    }
+
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .app-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
+    }
+
+    .brand-text h1 {
+      font-size: 1.12rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .brand-text p {
+      font-size: 0.75rem;
+      color: var(--gray-300);
+      margin-top: 2px;
+    }
+
+    .pwa-install-btn {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid var(--primary);
+      color: #34d399;
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .pwa-install-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Container */
+    .container {
+      max-width: 900px;
+      margin: 16px auto;
+      padding: 0 14px;
+    }
+
+    /* Day Selector Pills */
+    .day-selector-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+      border: 1px solid var(--gray-200);
+    }
+
+    .day-selector-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .day-selector-header h3 {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--gray-900);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .calendar-badge {
+      font-size: 0.75rem;
+      background: #eff6ff;
+      color: #1e40af;
+      padding: 3px 8px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    .days-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .days-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .day-pill {
+      flex: 1;
+      min-width: 78px;
+      background: var(--gray-50);
+      border: 1.5px solid var(--gray-200);
+      padding: 9px 6px;
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .day-pill.active {
+      background: #ecfdf5;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+    }
+
+    .day-name {
+      font-size: 0.85rem;
+      font-weight: 800;
+      display: block;
+      color: var(--gray-700);
+    }
+
+    .day-type {
+      font-size: 0.68rem;
+      margin-top: 3px;
+      display: inline-block;
+      padding: 2px 5px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+    .day-type.gym { background: #dbeafe; color: #1e40af; }
+    .day-type.rest { background: #f1f5f9; color: #475569; }
+
+    /* Hero Banner */
+    .hero-banner {
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      color: white;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hero-gym { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+    .hero-rest { background: linear-gradient(135deg, #475569 0%, #334155 100%); }
+
+    .hero-title { font-size: 1.25rem; font-weight: 800; }
+    .hero-desc { font-size: 0.85rem; opacity: 0.93; margin-top: 4px; }
+    
+    .hero-tags {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .hero-tag {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(4px);
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 0.74rem;
+      font-weight: 600;
+    }
+
+    /* Gym Rest Timer */
+    .timer-card {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: white;
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .timer-display {
+      font-size: 2rem;
+      font-weight: 900;
+      font-family: monospace;
+      color: #34d399;
+      letter-spacing: 2px;
+    }
+
+    .timer-controls {
+      display: flex;
+      gap: 6px;
+    }
+
+    .timer-btn {
+      background: rgba(255,255,255,0.12);
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+    .timer-btn:active { background: rgba(255,255,255,0.25); }
+
+    /* Progress Bar */
+    .progress-bar-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--gray-200);
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      height: 8px;
+      background: var(--gray-200);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #34d399);
+      width: 0%;
+      transition: width 0.4s ease;
+      border-radius: 8px;
+    }
+
+    /* Exercise Item Cards */
+    .card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+      border: 1px solid var(--gray-200);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1.5px solid var(--gray-100);
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .exercise-box {
+      background: var(--gray-50);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      border: 1.5px solid var(--gray-200);
+      transition: all 0.2s;
+    }
+
+    .exercise-box.completed {
+      background: #f0fdf4;
+      border-color: #86efac;
+    }
+
+    .exercise-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .exercise-name {
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: var(--gray-900);
+    }
+
+    .exercise-check {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      accent-color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .exercise-meta {
+      display: flex;
+      gap: 8px;
+      margin: 8px 0 6px 0;
+      flex-wrap: wrap;
+    }
+
+    .meta-pill {
+      background: white;
+      border: 1px solid var(--gray-200);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--gray-700);
+    }
+
+    .photo-trigger-btn {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 6px;
+    }
+    .photo-trigger-btn:hover { background: #dbeafe; }
+
+    .exercise-tip {
+      background: #fffbeb;
+      border-right: 3px solid #f59e0b;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      color: #92400e;
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    /* Machine Photo Thumbnail in card */
+    .machine-thumb-preview {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-top: 8px;
+      cursor: pointer;
+      border: 1px solid var(--gray-200);
+      display: block;
+    }
+
+    /* Modal for Fullscreen Photo */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+
+    .modal-card {
+      background: #0f172a;
+      border-radius: 18px;
+      max-width: 500px;
+      width: 100%;
+      overflow: hidden;
+      color: white;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      border-bottom: 1px solid #334155;
+    }
+
+    .modal-title { font-weight: 800; font-size: 0.95rem; }
+
+    .modal-close {
+      background: #334155;
+      color: white;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-img-wrapper {
+      max-height: 65vh;
+      overflow: hidden;
+      background: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .modal-desc {
+      padding: 12px 16px;
+      font-size: 0.82rem;
+      color: #94a3b8;
+    }
+
+    /* Meal Box */
+    .meal-box {
+      background: var(--gray-50);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      border: 1.5px solid var(--gray-200);
+    }
+    .meal-box.completed {
+      background: #f0fdf4;
+      border-color: #86efac;
+    }
+
+    .meal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .meal-title { font-weight: 800; font-size: 0.95rem; }
+    .meal-time {
+      font-size: 0.74rem;
+      background: white;
+      border: 1px solid var(--gray-200);
+      padding: 2px 7px;
+      border-radius: 6px;
+      color: var(--gray-600);
+    }
+
+    .meal-ul {
+      list-style: none;
+      margin-top: 6px;
+    }
+    .meal-ul li {
+      font-size: 0.84rem;
+      color: var(--gray-700);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .meal-ul li::before {
+      content: "•";
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    /* Bottom App Navigation Bar */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(15, 23, 42, 0.97);
+      backdrop-filter: blur(12px);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 90;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: none;
+      border: none;
+      cursor: pointer;
+      flex: 1;
+      padding: 4px 0;
+      border-radius: 8px;
+    }
+
+    .nav-item.active {
+      color: #34d399;
+    }
+
+    .nav-icon {
+      font-size: 1.25rem;
+    }
+
+    /* Tab screens */
+    .tab-screen { display: none; }
+    .tab-screen.active { display: block; animation: fadeIn 0.25s ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Alert cards */
+    .info-callout {
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+    .callout-wrist { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+    .callout-achilles { background: #fdf2f8; border: 1px solid #fbcfe8; color: #9d174d; }
+    .callout-posture { background: #fefce8; border: 1px solid #fef08a; color: #854d0e; }
+
+    /* Tables */
+    .app-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      margin-top: 8px;
+    }
+    .app-table th, .app-table td {
+      padding: 10px 8px;
+      text-align: right;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .app-table th { background: var(--gray-100); color: var(--gray-700); font-weight: 800; }
+
+    /* Install Banner Prompt */
+    .install-card {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: white;
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top App Header -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="app-brand">
+        <div class="app-logo">💪</div>
+        <div class="brand-text">
+          <h1>مربی من (نسخه موبایل)</h1>
+          <p>شخصی‌سازی شده با تجهیزات واقعی باشگاه شما</p>
+        </div>
+      </div>
+      <div>
+        <button class="pwa-install-btn" onclick="showInstallGuide()">
+          📱 نصب روی گوشی
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Views Container -->
+  <main class="container">
+
+    <!-- ==========================================
+         SCREEN 1: TODAY'S DASHBOARD
+         ========================================== -->
+    <section id="screen-today" class="tab-screen active">
+
+      <!-- Day Selector (Scrollable) -->
+      <div class="day-selector-card">
+        <div class="day-selector-header">
+          <h3>
+            <span>🗓️ انتخاب روز هفته</span>
+          </h3>
+          <span class="calendar-badge" id="lbl-current-date">امروز</span>
+        </div>
+        <div class="days-scroll">
+          <div class="day-pill" onclick="selectDay(0)" id="pill-0">
+            <span class="day-name">شنبه</span>
+            <span class="day-type rest">ریکاوری</span>
+          </div>
+          <div class="day-pill" onclick="selectDay(1)" id="pill-1">
+            <span class="day-name">یک‌شنبه</span>
+            <span class="day-type gym">باشگاه ۱</span>
+          </div>
+          <div class="day-pill" onclick="selectDay(2)" id="pill-2">
+            <span class="day-name">دوشنبه</span>
+            <span class="day-type rest">ریکاوری</span>
+          </div>
+          <div class="day-pill" onclick="selectDay(3)" id="pill-3">
+            <span class="day-name">سه‌شنبه</span>
+            <span class="day-type gym">باشگاه ۲</span>
+          </div>
+          <div class="day-pill" onclick="selectDay(4)" id="pill-4">
+            <span class="day-name">چهارشنبه</span>
+            <span class="day-type rest">ریکاوری</span>
+          </div>
+          <div class="day-pill" onclick="selectDay(5)" id="pill-5">
+            <span class="day-name">پنج‌شنبه</span>
+            <span class="day-type gym">باشگاه ۳</span>
+          </div>
+          <div class="day-pill" onclick="selectDay(6)" id="pill-6">
+            <span class="day-name">جمعه</span>
+            <span class="day-type rest">استراحت</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Banner for Selected Day -->
+      <div id="today-hero" class="hero-banner hero-gym">
+        <div>
+          <div class="hero-title" id="hero-title-text">امروز باشگاه</div>
+          <div class="hero-desc" id="hero-desc-text">شرح برنامه...</div>
+          <div class="hero-tags" id="hero-tags-container"></div>
+        </div>
+        <div style="font-size: 2.6rem;" id="hero-emoji">🏋️‍♂️</div>
+      </div>
+
+      <!-- Gym Rest Timer (Quick on mobile) -->
+      <div class="timer-card" id="gym-timer-card">
+        <div>
+          <div style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">⏱️ تایمر استراحت بین ست‌ها (با ویبره)</div>
+          <div class="timer-display" id="timer-val">01:30</div>
+        </div>
+        <div class="timer-controls">
+          <button class="timer-btn" onclick="startTimer(60)">۶۰ث</button>
+          <button class="timer-btn" onclick="startTimer(90)">۹۰ث</button>
+          <button class="timer-btn" onclick="resetTimer()">ریست</button>
+        </div>
+      </div>
+
+      <!-- Daily Progress -->
+      <div class="progress-bar-card">
+        <div class="progress-info">
+          <span>انجام کارهای امروز:</span>
+          <span id="progress-percent" style="color: var(--primary);">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Workout Section -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🎯 تمرینات با تجهیزات باشگاه</span>
+          </div>
+          <button style="background:none; border:none; color: var(--gray-600); font-size: 0.75rem; cursor:pointer;" onclick="resetDayChecks()">
+            🔄 پاک کردن تیک‌ها
+          </button>
+        </div>
+        <div id="dynamic-workout-list"></div>
+      </div>
+
+      <!-- Nutrition Section -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🍽️ وعده‌های غذایی امروز</span>
+          </div>
+          <span style="font-size: 0.75rem; background: #ecfdf5; color: #047857; padding: 2px 8px; border-radius: 6px; font-weight: 700;">
+            هدف: ۲,۱۵۰ کالری
+          </span>
+        </div>
+        <div id="dynamic-meal-list"></div>
+      </div>
+
+    </section>
+
+    <!-- ==========================================
+         SCREEN 2: FULL WORKOUT PLAN
+         ========================================== -->
+    <section id="screen-workout" class="tab-screen">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🔥 روتین گرم‌کردن و موبیلیتی (۱۵ دقیقه اول)</span>
+          </div>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--gray-700); margin-bottom: 8px;">
+          هر ۳ جلسه قبل از دست زدن به وزنه‌ها این ۳ حرکت اصلاحی را انجام دهید:
+        </p>
+        <div class="info-callout callout-wrist">
+          <strong>۱. مچ دست راست:</strong> چرخش آرام مچ در ۴ جهت با دمبل نیم‌کیلویی (۳ ست ۱۰ تکرار) + کشش ملایم تاندون در حالت چهار دست و پا.
+        </div>
+        <div class="info-callout callout-achilles">
+          <strong>۲. تاندون آشیل:</strong> کشش ساق پا تکیه به دیوار بدون جدا شدن پاشنه از زمین (۲ ست ۲۰ ثانیه هر پا).
+        </div>
+        <div class="info-callout callout-posture">
+          <strong>۳. قوز و شانه رو به جلو:</strong> حرکت Chin Tuck (عقب بردن چانه) + کشش سینه گوشه دیوار (۲ ست ۱۲ تکرار).
+        </div>
+      </div>
+
+      <!-- Detailed 3 Days Summary -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🏋️‍♂️ خلاصه برنامه ۳ روزه با دستگاه‌های شما</span>
+          </div>
+        </div>
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>جلسه</th>
+              <th>عضلات هدف</th>
+              <th>دستگاه‌های شاخص</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>یک‌شنبه</strong></td>
+              <td>سینه، زیربغل، پرس پا</td>
+              <td>پرس پا ۴۵ درجه، لت همگرا، فیس‌پول سیم‌کش</td>
+            </tr>
+            <tr>
+              <td><strong>سه‌شنبه</strong></td>
+              <td>پایین‌تنه، شانه، بازو</td>
+              <td>هاک اسکات، تی‌بار تکیه‌گاه سینه، لاری دستگاه</td>
+            </tr>
+            <tr>
+              <td><strong>پنج‌شنبه</strong></td>
+              <td>پشت، ددلیفت، شکم</td>
+              <td>دستگاه اسمیت، فلای معکوس قوز، زیرشکم خلبانی</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SCREEN 3: DIET & MACROS
+         ========================================== -->
+    <section id="screen-diet" class="tab-screen">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🥗 اهداف کالری و درشت‌مغذی‌ها</span>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; margin-bottom: 14px;">
+          <div style="background: var(--gray-50); padding: 12px; border-radius: 12px; border: 1px solid var(--primary-light);">
+            <div style="font-size: 0.75rem; color: var(--gray-600);">کالری کل روزانه</div>
+            <div style="font-size: 1.4rem; font-weight: 900; color: var(--primary-dark);">۲,۱۵۰</div>
+            <div style="font-size: 0.7rem; color: var(--gray-500);">۳۰۰ کالری کسری ملایم</div>
+          </div>
+          <div style="background: var(--gray-50); padding: 12px; border-radius: 12px; border: 1px solid #dbeafe;">
+            <div style="font-size: 0.75rem; color: var(--gray-600);">پروتئین خالص</div>
+            <div style="font-size: 1.4rem; font-weight: 900; color: #1e40af;">۱۵۵ گرم</div>
+            <div style="font-size: 0.7rem; color: var(--gray-500);">عضله‌سازی و بازسازی</div>
+          </div>
+          <div style="background: var(--gray-50); padding: 12px; border-radius: 12px; border: 1px solid #fef3c7;">
+            <div style="font-size: 0.75rem; color: var(--gray-600);">کربوهیدرات</div>
+            <div style="font-size: 1.4rem; font-weight: 900; color: #b45309;">۲۱۰ گرم</div>
+            <div style="font-size: 0.7rem; color: var(--gray-500);">تأمین انرژی پایدار</div>
+          </div>
+          <div style="background: var(--gray-50); padding: 12px; border-radius: 12px; border: 1px solid #fee2e2;">
+            <div style="font-size: 0.75rem; color: var(--gray-600);">چربی‌های مفید</div>
+            <div style="font-size: 1.4rem; font-weight: 900; color: #b91c1c;">۶۵ گرم</div>
+            <div style="font-size: 0.7rem; color: var(--gray-500);">تنظیم هورمون‌ها و مفاصل</div>
+          </div>
+        </div>
+
+        <div class="info-callout" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534;">
+          <strong>اصول پایه‌ای ناهار و شام:</strong>
+          <br>• ناهار: همیشه ۸ الی ۱۰ قاشق برنج کته + ۱۸۰ گرم گوشت سفید یا قرمز کم‌چرب + ۱ کاسه سالاد با ۱ قاشق روغن زیتون.
+          <br>• شام: پروتئین سبک (ماهی، مرغ، تخم‌مرغ) + سبزیجات پخته و ۱ عدد سیب‌زمینی آب‌پز متوسط.
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SCREEN 4: SUPPLEMENTS
+         ========================================== -->
+    <section id="screen-supplements" class="tab-screen">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>💊 جدول مصرف مکمل‌های شما</span>
+          </div>
+        </div>
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>مکمل</th>
+              <th>دوز</th>
+              <th>بهترین زمان</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>پودر سفیده تخم‌مرغ</strong></td>
+              <td>۲ اسکوپ (~۲۵ گرم)</td>
+              <td>صبحانه بلافاصله بعد از تمرین</td>
+            </tr>
+            <tr>
+              <td><strong>امگا ۳، ۶، ۹</strong></td>
+              <td>۱ کپسول</td>
+              <td>همراه با وعده ناهار</td>
+            </tr>
+            <tr>
+              <td><strong>زینک (روی)</strong></td>
+              <td>۱ عدد (۱۵-۲۵ میلی‌گرم)</td>
+              <td>همراه با ناهار (معده پر)</td>
+            </tr>
+            <tr>
+              <td><strong>منیزیم</strong></td>
+              <td>۱ عدد</td>
+              <td><strong>۴۰ دقیقه قبل از خواب شبانه (مهار استرس و خواب عمیق)</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SCREEN 5: REHAB & INJURY PREVENTION
+         ========================================== -->
+    <section id="screen-rehab" class="tab-screen">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🩺 راهنمای پیشگیری و ایمنی آسیب‌ها</span>
+          </div>
+        </div>
+
+        <div class="info-callout callout-wrist">
+          <strong>🖐️ مچ دست راست (کشیدگی تاندون قبلی):</strong>
+          <p>• از دستگاه لاری و دستگیره‌های خنثی استفاده کنید (به جای هالتر صاف).</p>
+          <p>• مچ‌بند بدنسازی را در تمام ست‌های اصلی محکم ببندید تا مانع شکستن مچ شود.</p>
+        </div>
+
+        <div class="info-callout callout-achilles">
+          <strong>🦶 آشیل کوتاه و کف پای صاف:</strong>
+          <p>• در پرس پا پاها را بالا بگذارید تا مچ پا زاویه بسته نگیرد.</p>
+          <p>• دستگاه داخل پا و خارج پا عضلات باسن را قوی کرده و از افتادن زانو به داخل جلوگیری می‌کند.</p>
+          <p>• روی تردمیل هرگز ندوید؛ فقط پیاده‌روی با شیب مثبت ۵ الی ۸ درصد انجام دهید.</p>
+        </div>
+
+        <div class="info-callout callout-posture">
+          <strong>🧘‍♂️ شانه رو به جلو و گردن به جلو (کارمندی):</strong>
+          <p>• فیس‌پول طنابی و فلای معکوس (عکس دستگاه در برنامه) درمان قطعی این عارضه هستند.</p>
+          <p>• پشت میز کار هر ۱ ساعت یک بار غبغب بگیرید و شانه‌ها را به عقب بکشید.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Photo Preview Modal -->
+  <div class="modal-overlay" id="photo-modal" onclick="closePhotoModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <span class="modal-title" id="modal-title-text">دستگاه در باشگاه شما</span>
+        <button class="modal-close" onclick="closePhotoModal()">✕</button>
+      </div>
+      <div class="modal-img-wrapper">
+        <img src="" id="modal-img-el" class="modal-img" alt="دستگاه بدنسازی">
+      </div>
+      <div class="modal-desc" id="modal-desc-text"></div>
+    </div>
+  </div>
+
+  <!-- Bottom App Navigation Bar -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="navTo('today', this)">
+      <span class="nav-icon">📅</span>
+      <span>امروز</span>
+    </button>
+    <button class="nav-item" onclick="navTo('workout', this)">
+      <span class="nav-icon">🏋️‍♂️</span>
+      <span>۳ روز تمرین</span>
+    </button>
+    <button class="nav-item" onclick="navTo('diet', this)">
+      <span class="nav-icon">🥗</span>
+      <span>رژیم غذایی</span>
+    </button>
+    <button class="nav-item" onclick="navTo('supplements', this)">
+      <span class="nav-icon">💊</span>
+      <span>مکمل‌ها</span>
+    </button>
+    <button class="nav-item" onclick="navTo('rehab', this)">
+      <span class="nav-icon">🩺</span>
+      <span>اصلاحی</span>
+    </button>
+  </nav>
+
+  <!-- Scripts -->
+  <script>
+    // Days Data customized with EXACT gym photos
+    const daysData = [
+      {
+        id: 0,
+        name: "شنبه",
+        type: "rest",
+        title: "شنبه: ریکاوری فعال، پیاده‌روی و کاهش استرس",
+        desc: "امروز باشگاه ندارید. روی فعالیت سبک روزانه، پیاده‌روی اداری و آرامش ذهنی تمرکز کنید.",
+        tags: ["👣 ۷,۵۰۰ تا ۸,۵۰۰ قدم", "🧘‍♂️ کشش شانه و گردن", "💊 منیزیم قبل خواب"],
+        emoji: "🚶‍♂️",
+        workout: [
+          { title: "پیاده‌روی منقطع در طول روز کاری", sets: "مجموع ۷,۵۰۰ تا ۸,۵۰۰ قدم", note: "مثلاً ۱۵ دقیقه بعد ناهار و بخشی از مسیر برگشت." },
+          { title: "حرکت کششی Chin-Tuck (غبغب) پشت میز", sets: "۳ ست × ۱۰ تکرار", note: "عقب کشیدن چانه و صاف کردن گردن برای کاهش قوز و افتادگی سر." },
+          { title: "کشش عضلات سینه گوشه دیوار", sets: "۳ ست × ۲۰ ثانیه", note: "باز کردن زاویه قفسه سینه منقبض شده ناشی از کار با مانیتور." },
+          { title: "تقویت ایزومتریک مچ دست راست", sets: "۲ ست × ۱۵ ثانیه", note: "فشار ملایم کف دست به میز بدون خم شدن مچ." }
+        ],
+        meals: [
+          { title: "صبحانه (ساعت ۸:۰۰)", time: "خانگی", items: ["۲ عدد تخم‌مرغ آب‌پز کامل + ۲ عدد سفیده", "۲ کف دست نان سنگک سبوس‌دار", "گوجه‌فرنگی و خیار و چند عدد گردو"] },
+          { title: "ناهار (ساعت ۱۳:۰۰)", time: "محل کار", items: ["۱۸۰ گرم سینه مرغ یا فیله گوشت لخم", "۸ قاشق برنج کته با ۱ قاشق روغن زیتون", "سالاد فراوان با آبغوره + ماست پروبیوتیک", "کپسول امگا و قرص زینک"] },
+          { title: "میان‌وعده عصر (ساعت ۱۷:۰۰)", time: "میز کار", items: ["۱ مشت آجیل خام (گردو و بادام)", "۱ عدد سیب درختی", "دمنوش بابونه یا به‌لیمو (کاهش استرس)"] },
+          { title: "شام (ساعت ۲۰:۳۰)", time: "سبک", items: ["۱ بشقاب سبزیجات بخارپز (بروکلی، کدو، هویج)", "۱۵۰ گرم مرغ یا ۱ قوطی تن ماهی روغن‌گرفته", "۱ عدد سیب‌زمینی آب‌پز متوسط", "منیزیم ۴۰ دقیقه قبل خواب"] }
+        ]
+      },
+      {
+        id: 1,
+        name: "یک‌شنبه",
+        type: "gym",
+        title: "یک‌شنبه: روز ۱ باشگاه (۶:۰۰ تا ۸:۰۰ صبح)",
+        desc: "سینه، زیربغل، پرس پا و شکم با دستگاه‌های همگرا و ایمن برای مچ دست.",
+        tags: ["⏰ ۶ تا ۸ صبح", "⚠️ مچ‌بند چسبی سفت", "🦶 پاها بالای صفحه پرس پا"],
+        emoji: "🏋️‍♂️",
+        workout: [
+          { 
+            title: "۱. گرم‌کردن و موبیلیتی مچ، آشیل و شانه", 
+            sets: "۱۵ دقیقه اول", 
+            note: "چرخش مچ با دمبل نیم کیلویی، کشش آشیل کنار دیوار، فیس‌پول با کش." 
+          },
+          { 
+            title: "۲. پرس پا زاویه ۴۵ درجه صفحه‌ای", 
+            sets: "۴ ست × ۱۰-۱۲ تکرار", 
+            note: "پاها به عرض شانه در بالای صفحه قرار گیرد تا مچ پا زاویه تند نگیرد و کوتاهی آشیل اذیت نکند.",
+            photo: "5769576165000548456.jpg",
+            machineName: "دستگاه پرس پا زاویه ۴۵ درجه (سمت چپ تصویر)"
+          },
+          { 
+            title: "۳. زیربغل لت دستگاه ارگونومیک (همگرا)", 
+            sets: "۴ ست × ۱۰-۱۲ تکرار", 
+            note: "از دستگیره‌های ارگونومیک استفاده کنید تا مچ دست در مسیر طبیعی حرکت کند.",
+            photo: "5769576165000548430.jpg",
+            machineName: "دستگاه لت همگرا با دستگیره واگرا"
+          },
+          { 
+            title: "۴. پرس بالاسینه دمبل روی نیمکت مدرج", 
+            sets: "۳ ست × ۱۰-۱۲ تکرار", 
+            note: "زاویه دمبل‌ها ۴۵ درجه (کف دست‌ها مایل به هم) و مچ‌بند سفت، بدون شکستن مچ.",
+            photo: "5769576165000548446.jpg",
+            machineName: "نیمکت مدرج و دمبل‌ها"
+          },
+          { 
+            title: "۵. فیس‌پول سیم‌کش با طناب (Cable Face Pull)", 
+            sets: "۳ ست × ۱۵ تکرار", 
+            note: "اصلاح کلیدی قوز و شانه رو به جلو؛ طناب را به سمت پیشانی بکشید.",
+            photo: "5769576165000548443.jpg",
+            machineName: "ایستگاه سیم‌کش با طناب دوبل"
+          },
+          { 
+            title: "۶. پشت بازو سیم‌کش طنابی", 
+            sets: "۳ ست × ۱۲ تکرار", 
+            note: "آرنج‌ها چسبیده به پهلو؛ در انتها طناب را باز کنید.",
+            photo: "5769576165000548435.jpg",
+            machineName: "سیم‌کش ایستاده با طناب"
+          },
+          { 
+            title: "۷. زیرشکم خلبانی روی استند", 
+            sets: "۳ ست × ۱۲-۱۵ تکرار", 
+            note: "ساعدها روی پد تکیه دارند؛ بدون فشار به مچ ضعیف دست.",
+            photo: "5769576165000548455.jpg",
+            machineName: "ایستگاه زیرشکم خلبانی"
+          },
+          { 
+            title: "۸. پیاده‌روی سریع روی تردمیل شیب‌دار", 
+            sets: "۲۰ دقیقه مداوم", 
+            note: "شیب ۶ الی ۸ درصد، سرعت ۵.۰ کیلومتر بدون دویدن (حفظ آشیل و کف پا).",
+            photo: "5769576165000548429.jpg",
+            machineName: "تردمیل‌های باشگاه با تنظیم شیب"
+          }
+        ],
+        meals: [
+          { title: "قبل تمرین (۵:۳۰ صبح)", time: "انرژی فوری", items: ["۱ عدد موز متوسط", "۱ فنجان قهوه تلخ یا چای سبز", "۱ لیوان بزرگ آب با آبلیمو"] },
+          { title: "صبحانه بعد تمرین (۸:۳۰ صبح)", time: "آنابولیک", items: ["۲ اسکوپ پودر سفیده تخم‌مرغ + ۱ تخم‌مرغ کامل", "۵۰ گرم جو دوسر پرک یا ۲ کف دست سنگک", "خیار و گوجه فرنگی"] },
+          { title: "ناهار (۱۳:۰۰)", time: "محل کار", items: ["۱۸۰ گرم سینه مرغ یا گوشت لخم", "۸-۱۰ قاشق برنج کته با روغن زیتون", "سالاد فصل با سرکه سیب", "کپسول امگا + قرص زینک"] },
+          { title: "میان‌وعده عصر (۱۷:۰۰)", time: "میز کار", items: ["۲۵ گرم مغز گردو و بادام خام", "۱ عدد میوه فصل", "دمنوش بابونه"] },
+          { title: "شام (۲۰:۳۰)", time: "ریکاوری", items: ["۱۵۰ گرم فیله ماهی یا مرغ یا املت ۳ سفیده", "۱ بشقاب سبزیجات پخته و هویج", "۱۵۰ گرم سیب‌زمینی آب‌پز", "منیزیم ۴۰ دقیقه قبل خواب"] }
+        ]
+      },
+      {
+        id: 2,
+        name: "دوشنبه",
+        type: "rest",
+        title: "دوشنبه: استراحت فعال، آبرسانی و آرامش عضلات",
+        desc: "عضلات در زمان استراحت ساخته می‌شوند. پیاده‌روی منظم و خواب کافی داشته باشید.",
+        tags: ["💧 ۳ لیتر آب", "👣 ۷,۵۰۰ قدم پیاده‌روی", "🧘‍♂️ کشش ساق پا و آشیل"],
+        emoji: "🧘‍♂️",
+        workout: [
+          { title: "پیاده‌روی آرام با کفش کفی‌دار طبی", sets: "مجموع ۷,۵۰۰ تا ۸,۵۰۰ قدم", note: "تقویت قوس پا بدون آسیب به آشیل." },
+          { title: "کشش عضلات دوقلو و تاندون آشیل", sets: "۳ ست × ۲۰ ثانیه هر پا", note: "پاشنه روی زمین، رهاسازی سفتی تاندون." },
+          { title: "حرکت فرشته دیواری (Wall Angels)", sets: "۲ ست × ۱۰ تکرار", note: "پشت به دیوار، بالا بردن دست‌ها برای باز شدن شانه." }
+        ],
+        meals: [
+          { title: "صبحانه (۸:۰۰)", time: "خانگی", items: ["۲ عدد تخم‌مرغ آب‌پز + ۲ عدد سفیده", "نان سبوس‌دار + ۱ قوطی کبریت پنیر کم‌چرب", "چای با ۲ خرما"] },
+          { title: "ناهار (۱۳:۰۰)", time: "محل کار", items: ["۱۸۰ گرم گوشت بوقلمون یا مرغ", "۸ قاشق برنج کته", "سالاد با روغن زیتون", "امگا و زینک"] },
+          { title: "میان‌وعده عصر (۱۷:۰۰)", time: "میز کار", items: ["مغزیجات خام", "۱ عدد میوه تازه", "دمنوش گل‌گاوزبان"] },
+          { title: "شام (۲۰:۳۰)", time: "سبک", items: ["خوراک لوبیا چیتی با قارچ و سینه مرغ", "سالاد سبزیجات با آبغوره", "منیزیم قبل خواب"] }
+        ]
+      },
+      {
+        id: 3,
+        name: "سه‌شنبه",
+        type: "gym",
+        title: "سه‌شنبه: روز ۲ باشگاه (۶:۰۰ تا ۸:۰۰ صبح)",
+        desc: "هاک اسکات، تی‌بار با تکیه‌گاه، پرس سرشانه دستگاه، لاری و تقویت ران.",
+        tags: ["⏰ ۶ تا ۸ صبح", "🛡️ تی‌بار با تکیه‌گاه سینه", "💪 جلو بازو لاری محافظ مچ"],
+        emoji: "🏋️‍♂️",
+        workout: [
+          { 
+            title: "۱. گرم‌کردن اختصاصی مچ پا و ران", 
+            sets: "۱۵ دقیقه اول", 
+            note: "چرخش مچ پا، کشش فلکسورهای لگن و گرم‌کردن شانه." 
+          },
+          { 
+            title: "۲. هاک اسکات زاویه‌دار (یا گابلت اسکات با دمبل)", 
+            sets: "۴ ست × ۱۰ تکرار", 
+            note: "بهترین انتخاب برای کوتاهی آشیل! پشت کاملاً روی پد تکیه دارد و پاها در جای امن قرار می‌گیرند.",
+            photo: "5769576165000548456.jpg",
+            machineName: "دستگاه هاک اسکات (سمت راست تصویر)"
+          },
+          { 
+            title: "۳. زیربغل تی‌بار با تکیه‌گاه سینه", 
+            sets: "۴ ست × ۱۰-۱۲ تکرار", 
+            note: "سینه روی پد قرار می‌گیرد، ستون فقرات کاملاً محافظت شده و دستگیره خنثی مانع پیچش مچ دست می‌شود.",
+            photo: "5769576165000548459.jpg",
+            machineName: "دستگاه تی‌بار رو با تکیه‌گاه سینه (سمت چپ تصویر)"
+          },
+          { 
+            title: "۴. پرس سرشانه دستگاه با دستگیره خنثی", 
+            sets: "۳ ست × ۱۰-۱۲ تکرار", 
+            note: "دستگیره‌های عمودی (رو به هم) را بگیرید تا فشار از روی مچ و تاندون شانه برداشته شود.",
+            photo: "5769576165000548438.jpg",
+            machineName: "دستگاه پرس سرشانه با گریپ خنثی"
+          },
+          { 
+            title: "۵. پشت پا دستگاه نشسته (Seated Leg Curl)", 
+            sets: "۳ ست × ۱۲-۱۵ تکرار", 
+            note: "بسیار ایمن‌تر از پشت پا خوابیده؛ تنظیم زاویه ران و کشش عضلات همسترینگ.",
+            photo: "5769576165000548452.jpg",
+            machineName: "دستگاه پشت پا نشسته"
+          },
+          { 
+            title: "۶. جلو بازو لاری دستگاه (Arm Curl Machine)", 
+            sets: "۳ ست × ۱۲ تکرار", 
+            note: "آرنج روی پد ثابت است؛ زاویه دستگیره فشار چرخشی به تاندون آسیب‌دیده مچ دست را خنثی می‌کند.",
+            photo: "5769576165000548437.jpg",
+            machineName: "دستگاه جلو بازو لاری"
+          },
+          { 
+            title: "۷. دستگاه داخل و خارج ران (Abductor/Adductor)", 
+            sets: "۳ ست × ۱۵ تکرار", 
+            note: "تقویت ثبات لگن که کلید جلوگیری از چرخش زانو به داخل به دلیل صافی کف پاست.",
+            photo: "5769576165000548451.jpg",
+            machineName: "دستگاه داخل و خارج پا"
+          },
+          { 
+            title: "۸. پیاده‌روی روی تردمیل شیب‌دار", 
+            sets: "۲۰ دقیقه مداوم", 
+            note: "شیب ۷.۵٪، سرعت ۵.۰ کیلومتر بدون ضربه به پا.",
+            photo: "5769576165000548429.jpg",
+            machineName: "تردمیل شیب‌دار"
+          }
+        ],
+        meals: [
+          { title: "قبل تمرین (۵:۳۰ صبح)", time: "انرژی اولیه", items: ["۱ عدد موز متوسط", "۱ فنجان قهوه تلخ", "۱ لیوان آب با لیمو"] },
+          { title: "صبحانه بعد تمرین (۸:۳۰ صبح)", time: "ریکاوری", items: ["۲ اسکوپ پودر سفیده + ۱ تخم‌مرغ کامل", "اوتمیل جو دوسر ۵۰ گرم یا سنگک", "خیار و گوجه فرنگی"] },
+          { title: "ناهار (۱۳:۰۰)", time: "محل کار", items: ["۲۰۰ گرم سینه مرغ یا فیله گوشت", "۸-۱۰ قاشق برنج کته", "سالاد سبزیجات با روغن زیتون", "امگا و زینک"] },
+          { title: "میان‌وعده عصر (۱۷:۰۰)", time: "تنظیم قند خون", items: ["مغز گردو و بادام", "۱ عدد میوه تازه", "دمنوش ضد استرس"] },
+          { title: "شام (۲۰:۳۰)", time: "ترمیم شبانه", items: ["فیله ماهی یا ۱ قوطی تن ماهی روغن‌گرفته", "۱ عدد سیب‌زمینی آب‌پز متوسط", "سبزیجات بخارپز (بروکلی و کدو)", "منیزیم قبل خواب"] }
+        ]
+      },
+      {
+        id: 4,
+        name: "چهارشنبه",
+        type: "rest",
+        title: "چهارشنبه: استراحت فعال و مدیریت استرس شغلی",
+        desc: "وسط هفته کاری؛ با تنفس دیافراگمی و خواب مناسب کورتیزول را مهار کنید.",
+        tags: ["👣 ۷,۵۰۰ قدم پیاده‌روی", "💤 خواب کامل ۸ ساعته", "💧 آبرسانی مرتب"],
+        emoji: "🌿",
+        workout: [
+          { title: "پیاده‌روی آرام بعد از ساعت کاری", sets: "۳۰ تا ۴۰ دقیقه", note: "آرامش ذهنی، کاهش کورتیزول و بهبود ترشح اندورفین." },
+          { title: "تمرین تنفس دیافراگمی ۴-۷-۸", sets: "۳ ست ۵ دقیقه‌ای", note: "۴ ثانیه دم، ۷ ثانیه مکث، ۸ ثانیه بازدم آرام (مهار استرس شغلی)." },
+          { title: "کشش ملایم مچ دست و انگشتان", sets: "۳ ست ۱۰ ثانیه‌ای", note: "کاهش گرفتگی تاندون‌های مچ ناشی از کار با ماوس." }
+        ],
+        meals: [
+          { title: "صبحانه (۸:۰۰)", time: "خانگی", items: ["املت با ۳ سفیده و ۱ تخم‌مرغ کامل", "نان سنگک یا جو", "سبزی خوردن تازه"] },
+          { title: "ناهار (۱۳:۰۰)", time: "محل کار", items: ["خوراک مرغ و قارچ با ۸ قاشق برنج کته", "سالاد فصل با لیمو ترش", "ماست پروبیوتیک", "امگا و زینک"] },
+          { title: "میان‌وعده عصر (۱۷:۰۰)", time: "میز کار", items: ["آجیل خام + میوه تازه", "چای سبز یا دمنوش گیاهی"] },
+          { title: "شام (۲۰:۳۰)", time: "سبک", items: ["سوپ غلیظ سبزیجات با فیله مرغ ریش‌ریش شده", "۱ تکه نان جو", "منیزیم ۴۰ دقیقه قبل خواب"] }
+        ]
+      },
+      {
+        id: 5,
+        name: "پنج‌شنبه",
+        type: "gym",
+        title: "پنج‌شنبه: روز ۳ باشگاه (۶:۰۰ تا ۸:۰۰ صبح)",
+        desc: "دستگاه اسمیت، فلای معکوس قوز، نشر جانب دلتوئید و ساق پا برای آشیل.",
+        tags: ["⏰ ۶ تا ۸ صبح", "🛡️ دستگاه نشر جانب بدون درگیری مچ", "🦶 ساق نشسته برای آشیل"],
+        emoji: "🏋️‍♂️",
+        workout: [
+          { 
+            title: "۱. گرم‌کردن کامل و Chin-Tuck", 
+            sets: "۱۵ دقیقه اول", 
+            note: "آماده‌سازی زنجیره خلفی و فعال‌سازی شانه." 
+          },
+          { 
+            title: "۲. ددلیفت رومانیایی با دستگاه اسمیت (RDL)", 
+            sets: "۴ ست × ۱۰-۱۲ تکرار", 
+            note: "ریل دستگاه اسمیت تعادل را حفظ کرده و حرکت کاملاً کنترل‌شده روی همسترینگ و باسن وارد می‌شود.",
+            photo: "5769576165000548444.jpg",
+            machineName: "دستگاه اسمیت با قفل اطمینان"
+          },
+          { 
+            title: "۳. فلای معکوس دستگاه (Reverse Pec Deck)", 
+            sets: "۴ ست × ۱۵ تکرار", 
+            note: "درمان طلایی قوز و شانه رو به جلو! پشت سینه را به پد بچسبانید و دسته‌ها را به عقب برانید.",
+            photo: "5769576165000548436.jpg",
+            machineName: "دستگاه پروانه و فلای معکوس"
+          },
+          { 
+            title: "۴. نشر از جانب با دستگاه دلتوئید (Delts Machine)", 
+            sets: "۳ ست × ۱۲-۱۵ تکرار", 
+            note: "معجزه برای مچ دست شما! پد دستگاه روی ساعد می‌نشیند و مچ دست اصلاً زیر بار وزنه نمی‌رود.",
+            photo: "5769576165000548441.jpg",
+            machineName: "دستگاه نشر از جانب دلتوئید"
+          },
+          { 
+            title: "۵. جلو پا دستگاه نشسته (Leg Extension)", 
+            sets: "۳ ست × ۱۲ تکرار", 
+            note: "تقویت بخش جلوی ران و تاندون کشکک زانو.",
+            photo: "5769576165000548461.jpg",
+            machineName: "دستگاه جلو پا نشسته"
+          },
+          { 
+            title: "۶. ساق پا نشسته با دستگاه (Seated Calf Raise)", 
+            sets: "۳ ست × ۱۵ تکرار", 
+            note: "تمرکز روی عضله سولئوس با زانوی خم؛ کمک فوق‌العاده به انعطاف‌پذیری و کشش تدریجی تاندون آشیل کوتاه.",
+            photo: "5769576165000548459.jpg",
+            machineName: "دستگاه ساق پا نشسته (سمت راست تصویر)"
+          },
+          { 
+            title: "۷. فیله کمر روی نیمکت ۴۵ درجه", 
+            sets: "۳ ست × ۱۵ تکرار", 
+            note: "انقباض باسن و عضلات فیله برای اصلاح ساختار ستون فقرات بدون قوس بیش از حد.",
+            photo: "5769576165000548449.jpg",
+            machineName: "نیمکت فیله کمر زاویه‌دار"
+          },
+          { 
+            title: "۸. پیاده‌روی روی تردمیل شیب‌دار", 
+            sets: "۲۰ دقیقه مداوم", 
+            note: "شیب ۸٪، سرعت ۵.۰ کیلومتر بدون دویدن ضربه‌ای.",
+            photo: "5769576165000548429.jpg",
+            machineName: "تردمیل شیب‌دار"
+          }
+        ],
+        meals: [
+          { title: "قبل تمرین (۵:۳۰ صبح)", time: "انرژی فوری", items: ["۱ عدد موز متوسط", "قهوه تلخ", "آب فراوان"] },
+          { title: "صبحانه بعد تمرین (۸:۳۰ صبح)", time: "ریکاوری", items: ["۲ اسکوپ پودر سفیده + ۱ تخم‌مرغ کامل", "اوتمیل یا نان سنگک", "خیار و گوجه فرنگی"] },
+          { title: "ناهار (۱۳:۰۰)", time: "وعده کامل", items: ["۲۰۰ گرم فیله مرغ یا بوقلمون", "۱۰ قاشق برنج کته با روغن زیتون", "سالاد فصل با آبغوره", "امگا و زینک"] },
+          { title: "میان‌وعده عصر (۱۷:۰۰)", time: "انرژی عصر", items: ["مغز بادام و گردو", "۱ عدد سیب یا موز", "دمنوش گیاهی"] },
+          { title: "شام (۲۰:۳۰)", time: "پروتئین سالم", items: ["ماهی کباب شده یا خوراک فیله مرغ", "سیب‌زمینی تنوری کوچک", "سبزیجات بخارپز", "منیزیم قبل خواب"] }
+        ]
+      },
+      {
+        id: 6,
+        name: "جمعه",
+        type: "rest",
+        title: "جمعه: استراحت کامل، تفریح و بازسازی روحی",
+        desc: "یک روز برای خواب کافی، آرامش، بودن با خانواده و بازیابی انرژی هفتگی.",
+        tags: ["🧘‍♂️ استراحت کامل از وزنه", "😴 خواب لذت‌بخش", "🥗 آماده‌سازی هفته بعد"],
+        emoji: "☕",
+        workout: [
+          { title: "استراحت کامل از تمرین با وزنه", sets: "بدون وزنه", note: "اجازه دهید تاندون‌ها و فیبرها کاملاً ترمیم شوند." },
+          { title: "پیاده‌روی تفریحی در طبیعت یا پارک", sets: "به دلخواه (۳۰ تا ۵۰ دقیقه)", note: "بهبود جریان خون و شادابی روحی." },
+          { title: "حمام گرم یا سونا / جکوزی ملایم", sets: "۲۰ دقیقه", note: "کمک به آرامش عضلات سرشانه، گردن و مچ دست." }
+        ],
+        meals: [
+          { title: "صبحانه دیرتر (۹:۰۰ صبح)", time: "آرامش جمعه", items: ["املت سبزیجات با ۳ تخم‌مرغ (۲ سفیده + ۱ کامل)", "نان سنگک تازه", "چای تازه دم با هل"] },
+          { title: "ناهار خانوادگی (۱۳:۳۰)", time: "کنترل حجم برنج", items: ["چلوکباب برگ یا خورشت کم‌چرب با گوشت لخم", "۸ تا ۱۰ قاشق برنج", "سالاد شیرازی با آبغوره (بدون سس مایونز)", "امگا و زینک"] },
+          { title: "عصرانه (۱۷:۳۰)", time: "لذت جمعه", items: ["میوه فصل + چند عدد مغز گردو و پسته"] },
+          { title: "شام سبک (۲۰:۳۰)", time: "آماده‌سازی برای شنبه", items: ["سالاد مرغ و سبزیجات با ماست و زیتون", "نان جو کوچک", "منیزیم قبل خواب"] }
+        ]
+      }
+    ];
+
+    let currentDayIndex = 1;
+    let timerInterval = null;
+    let timerRemaining = 90;
+
+    function initApp() {
+      // Register Service Worker for PWA
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+          .then(() => console.log('PWA Service Worker Registered'))
+          .catch(err => console.log('SW registration error:', err));
+      }
+
+      // Detect current day
+      const dayOfWeek = new Date().getDay(); // 0 is Sun, 6 is Sat
+      const map = { 6: 0, 0: 1, 1: 2, 2: 3, 3: 4, 4: 5, 5: 6 };
+      currentDayIndex = map[dayOfWeek] !== undefined ? map[dayOfWeek] : 1;
+
+      const dateStr = new Intl.DateTimeFormat('fa-IR', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
+      document.getElementById('lbl-current-date').innerText = dateStr;
+
+      selectDay(currentDayIndex);
+    }
+
+    function selectDay(index) {
+      currentDayIndex = index;
+
+      document.querySelectorAll('.day-pill').forEach((p, idx) => {
+        p.classList.toggle('active', idx === index);
+      });
+
+      const day = daysData[index];
+
+      // Hero banner
+      const hero = document.getElementById('today-hero');
+      hero.className = `hero-banner ${day.type === 'gym' ? 'hero-gym' : 'hero-rest'}`;
+      document.getElementById('hero-title-text').innerText = day.title;
+      document.getElementById('hero-desc-text').innerText = day.desc;
+      document.getElementById('hero-emoji').innerText = day.emoji;
+
+      const tagsContainer = document.getElementById('hero-tags-container');
+      tagsContainer.innerHTML = day.tags.map(t => `<span class="hero-tag">${t}</span>`).join('');
+
+      document.getElementById('gym-timer-card').style.display = day.type === 'gym' ? 'flex' : 'none';
+
+      renderWorkouts(day);
+      renderMeals(day);
+      updateProgress();
+    }
+
+    function renderWorkouts(day) {
+      const container = document.getElementById('dynamic-workout-list');
+      container.innerHTML = day.workout.map((item, idx) => {
+        const key = `workout_${day.id}_${idx}`;
+        const isChecked = localStorage.getItem(key) === 'true';
+        return `
+          <div class="exercise-box ${isChecked ? 'completed' : ''}" id="card_${key}">
+            <div class="exercise-top">
+              <span class="exercise-name">${item.title}</span>
+              <input type="checkbox" class="exercise-check" id="${key}" ${isChecked ? 'checked' : ''} onchange="toggleCheck('${key}')">
+            </div>
+            <div class="exercise-meta">
+              <span class="meta-pill">📊 ${item.sets}</span>
+            </div>
+            ${item.note ? `<div class="exercise-tip">💡 ${item.note}</div>` : ''}
+            ${item.photo ? `
+              <div style="margin-top: 8px;">
+                <button type="button" class="photo-trigger-btn" onclick="openPhotoModal('${item.photo}', '${item.machineName || item.title}', '${item.note}')">
+                  📷 مشاهده دستگاه در باشگاه شما
+                </button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderMeals(day) {
+      const container = document.getElementById('dynamic-meal-list');
+      container.innerHTML = day.meals.map((meal, idx) => {
+        const key = `meal_${day.id}_${idx}`;
+        const isChecked = localStorage.getItem(key) === 'true';
+        return `
+          <div class="meal-box ${isChecked ? 'completed' : ''}" id="card_${key}">
+            <div class="meal-header">
+              <span class="meal-title">${meal.title}</span>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="meal-time">${meal.time}</span>
+                <input type="checkbox" class="exercise-check" id="${key}" ${isChecked ? 'checked' : ''} onchange="toggleCheck('${key}')">
+              </div>
+            </div>
+            <ul class="meal-ul">
+              ${meal.items.map(i => `<li>${i}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleCheck(key) {
+      const el = document.getElementById(key);
+      const card = document.getElementById(`card_${key}`);
+      localStorage.setItem(key, el.checked);
+      if (card) {
+        card.classList.toggle('completed', el.checked);
+      }
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const day = daysData[currentDayIndex];
+      let total = day.workout.length + day.meals.length;
+      let checked = 0;
+
+      day.workout.forEach((_, idx) => {
+        if (localStorage.getItem(`workout_${day.id}_${idx}`) === 'true') checked++;
+      });
+      day.meals.forEach((_, idx) => {
+        if (localStorage.getItem(`meal_${day.id}_${idx}`) === 'true') checked++;
+      });
+
+      const pct = Math.round((checked / total) * 100);
+      document.getElementById('progress-percent').innerText = `${pct}%`;
+      document.getElementById('progress-fill').style.width = `${pct}%`;
+    }
+
+    function resetDayChecks() {
+      if (confirm("آیا تیک‌های آیتم‌های امروز پاک شوند؟")) {
+        const day = daysData[currentDayIndex];
+        day.workout.forEach((_, idx) => localStorage.removeItem(`workout_${day.id}_${idx}`));
+        day.meals.forEach((_, idx) => localStorage.removeItem(`meal_${day.id}_${idx}`));
+        selectDay(currentDayIndex);
+      }
+    }
+
+    // Modal
+    function openPhotoModal(imgSrc, title, desc) {
+      document.getElementById('modal-img-el').src = imgSrc;
+      document.getElementById('modal-title-text').innerText = title;
+      document.getElementById('modal-desc-text').innerText = desc || "";
+      document.getElementById('photo-modal').classList.add('open');
+    }
+
+    function closePhotoModal() {
+      document.getElementById('photo-modal').classList.remove('open');
+    }
+
+    // Navigation Switcher
+    function navTo(screenId, btnEl) {
+      document.querySelectorAll('.tab-screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+
+      document.getElementById(`screen-${screenId}`).classList.add('active');
+      if (btnEl) btnEl.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Timer with Vibration
+    function startTimer(seconds) {
+      clearInterval(timerInterval);
+      timerRemaining = seconds;
+      updateTimerDisplay();
+
+      timerInterval = setInterval(() => {
+        timerRemaining--;
+        if (timerRemaining <= 0) {
+          clearInterval(timerInterval);
+          notifyTimerDone();
+          document.getElementById('timer-val').innerText = "00:00 - حرکت!";
+        } else {
+          updateTimerDisplay();
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const m = Math.floor(timerRemaining / 60);
+      const s = timerRemaining % 60;
+      document.getElementById('timer-val').innerText = 
+        `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerRemaining = 90;
+      updateTimerDisplay();
+    }
+
+    function notifyTimerDone() {
+      // Vibrate on mobile
+      if ('vibrate' in navigator) {
+        navigator.vibrate([250, 100, 250]);
+      }
+      // Audio beep
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 880;
+        osc.type = "sine";
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.8);
+        setTimeout(() => osc.stop(), 800);
+      } catch (e) {}
+    }
+
+    function showInstallGuide() {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      if (isIOS) {
+        alert("📱 راهنمای نصب در آیفون (Safari):\n\n۱. دکمه Share (مربع با فلش رو به بالا) را در پایین صفحه بزنید.\n۲. گزینه 'Add to Home Screen' (افزودن به صفحه اصلی) را انتخاب کنید.\n\nبرنامه مثل یک اپ اختصاصی بدون نوار آدرس نصب می‌شود!");
+      } else {
+        alert("📱 راهنمای نصب در اندروید (Chrome):\n\n۱. منوی سه‌نقطه بالای مرورگر کروم را بزنید.\n۲. گزینه 'Install app' یا 'Add to Home screen' (افزودن به صفحه اصلی) را بزنید.\n\nبرنامه با آیکون اختصاصی و بدون نیاز به اینترنت نصب خواهد شد!");
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
